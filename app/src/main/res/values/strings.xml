@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Memorama</string>
+    <string name="main_menu_title">MEMORAMA</string>
+    <string name="play_button">JUGAR</string>
+    <string name="difficulty_title">DIFICULTAD</string>
+    <string name="easy_difficulty">FÁCIL (4x3)</string>
+    <string name="medium_difficulty">MEDIO (4x4)</string>
+    <string name="hard_difficulty">DIFÍCIL (5x4)</string>
+    <string name="back_to_menu">Volver al Menú</string>
+    <string name="restart_game">Reiniciar Juego</string>
+    <string name="pairs_found">Pares encontrados: %1$d/%2$d</string>
+    <string name="moves">Movimientos: %1$d</string>
+    <string name="game_completed_title">¡Felicidades!</string>
+    <string name="game_completed_message">Has completado el juego en %1$d movimientos.</string>
+    <string name="score">Puntuación: %1$d</string>
+    <string name="high_score">Mejor puntuación: %1$d</string>
+    <string name="play_again">Jugar de Nuevo</string>
+    
+    <!-- Nuevos strings para las características faltantes -->
+    <string name="time">Tiempo: %1$s</string>
+    <string name="continue_game">Continuar Juego</string>
+    <string name="new_game">Nuevo Juego</string>
+    <string name="mode_classic">Modo Clásico</string>
+    <string name="mode_timed">Contrarreloj</string>
+    <string name="mode_memory">Modo Memoria</string>
+    <string name="settings">Configuración</string>
+    <string name="sound_on">Sonido: Activado</string>
+    <string name="sound_off">Sonido: Desactivado</string>
+    <string name="game_over">¡Tiempo Agotado!</string>
+    <string name="level_complete">¡Nivel Completado!</string>
+    <string name="next_level">Siguiente Nivel</string>
+    <string name="high_scores">Puntuaciones</string>
+    
+    <!-- Strings faltantes para la pantalla de puntuaciones -->
+    <string name="high_scores_title">MEJORES PUNTUACIONES</string>
+    <string name="easy_high_score">Fácil: %1$d</string>
+    <string name="medium_high_score">Medio: %1$d</string>
+    <string name="hard_high_score">Difícil: %1$d</string>
+    <string name="no_scores_yet">Aún no hay puntuaciones</string>
+    
+    <!-- Añadir estos strings al archivo strings.xml -->
+    <string name="save_load_game">Guardar/Cargar Partida</string>
+    <string name="save_game">Guardar Partida</string>
+    <string name="load_game">Cargar Partida</string>
+    <string name="saved_games">Partidas Guardadas</string>
+    <string name="file_name">Nombre del archivo</string>
+    <string name="select_format">Seleccionar formato</string>
+    <string name="save">Guardar</string>
+    <string name="load">Cargar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Eliminar</string>
+</resources>
