@@ -17,9 +17,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+//import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,7 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.escom.practica4_1.data.FileManager
 import com.escom.practica4_1.data.GameStateManager
-import com.escom.practica4_1.model.GameState
+//import com.escom.practica4_1.model.GameState
 import com.escom.practica4_1.ui.game.GameScreen
 import com.escom.practica4_1.ui.menu.DifficultyScreen
 import com.escom.practica4_1.ui.menu.HighScoresScreen
@@ -119,13 +120,14 @@ fun MemoramaAppWithThemeSettings() {
 @Composable
 fun MemoramaApp() {
     val navController = rememberNavController()
-    
+    val context = LocalContext.current // Obtener el contexto aquí
+    val fileManager = remember { FileManager(context) } // Crear instancia de FileManager
+
     NavHost(navController = navController, startDestination = "main_menu") {
         composable("main_menu") {
             MainMenuScreen(navController)
         }
-        
-        // Pantalla de selección de dificultad
+
         composable("difficulty") {
             DifficultyScreen(
                 onDifficultySelected = { difficulty ->
@@ -136,13 +138,11 @@ fun MemoramaApp() {
                 }
             )
         }
-        
-        // Pantalla de puntuaciones altas
+
         composable("high_scores") {
             HighScoresScreen(navController)
         }
-        
-        // Pantalla del juego
+
         composable(
             route = "game/{difficulty}",
             arguments = listOf(navArgument("difficulty") { type = NavType.StringType })
@@ -156,34 +156,84 @@ fun MemoramaApp() {
                     }
                 },
                 onSaveGameClick = {
+                    // Asegúrate de que GameStateManager.currentGameState se establece antes de navegar
+                    // Esto normalmente se haría en GameScreen antes de llamar a onSaveGameClick
                     navController.navigate("save_game")
                 }
             )
         }
-        
-        // Pantalla para guardar/cargar juego
+
         composable("save_game") {
-            val gameState = GameStateManager.currentGameState
+            val gameState = GameStateManager.currentGameState // Recuperar el estado actual
             if (gameState != null) {
                 SaveGameScreen(
                     gameState = gameState,
                     onBackClick = { navController.popBackStack() },
                     onLoadGame = { loadedGameState ->
-                        GameStateManager.currentGameState = loadedGameState
+                        GameStateManager.currentGameState = loadedGameState // Guardar estado cargado
                         navController.navigate("game/${loadedGameState.difficulty}") {
-                            popUpTo("main_menu")
+                            popUpTo("main_menu") // Volver al menú principal antes de ir al juego
                         }
                     },
-                    onViewTextFile = { fileName, content ->
-                        navController.navigate("view_text/$fileName/${content.hashCode()}")
+                    // Modificar lambdas para navegar a la nueva ruta unificada
+                    onViewTextFile = { fileName, _ -> // El contenido no se pasa por navegación
+                        navController.navigate("view_file/$fileName/${FileManager.FORMAT_TXT}")
                     },
-                    onViewJsonFile = { fileName, content ->
-                        navController.navigate("view_json/$fileName/${content.hashCode()}")
+                    onViewJsonFile = { fileName, _ ->
+                        navController.navigate("view_file/$fileName/${FileManager.FORMAT_JSON}")
                     },
-                    onViewXmlFile = { fileName, content ->
-                        navController.navigate("view_xml/$fileName/${content.hashCode()}")
+                    onViewXmlFile = { fileName, _ ->
+                        navController.navigate("view_file/$fileName/${FileManager.FORMAT_XML}")
                     }
                 )
+            } else {
+                // Opcional: Manejar el caso donde gameState es null, quizás volver atrás o mostrar mensaje
+                Log.e("MemoramaApp", "Error: GameState es null al navegar a save_game.")
+                // navController.popBackStack() // Ejemplo: Volver si no hay estado
+            }
+        }
+
+        // Nueva ruta unificada para visualizar archivos
+        composable(
+            route = "view_file/{fileName}/{format}",
+            arguments = listOf(
+                navArgument("fileName") { type = NavType.StringType },
+                navArgument("format") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val fileName = backStackEntry.arguments?.getString("fileName") ?: "unknown"
+            val format = backStackEntry.arguments?.getString("format") ?: FileManager.FORMAT_TXT
+            
+            // Leer el contenido del archivo usando FileManager
+            // Es importante manejar el caso donde la lectura falla
+            val fileContent = try {
+                fileManager.readTextFileContent(fileName, format)
+            } catch (e: Exception) {
+                Log.e("MemoramaApp", "Error leyendo archivo $fileName.$format: ${e.message}")
+                "Error al leer el archivo: ${e.message}" // Mostrar mensaje de error
+            }
+
+            when (format) {
+                FileManager.FORMAT_TXT -> TextFileViewerScreen(
+                    fileName = fileName,
+                    fileContent = fileContent,
+                    onBackClick = { navController.popBackStack() }
+                )
+                FileManager.FORMAT_JSON -> JsonFileViewerScreen(
+                    fileName = fileName,
+                    jsonContent = fileContent,
+                    onBackClick = { navController.popBackStack() }
+                )
+                FileManager.FORMAT_XML -> XmlFileViewerScreen(
+                    fileName = fileName,
+                    xmlContent = fileContent,
+                    onBackClick = { navController.popBackStack() }
+                )
+                else -> {
+                    // Opcional: Mostrar un mensaje de formato no soportado o volver
+                    Log.e("MemoramaApp", "Formato de archivo no soportado: $format")
+                    navController.popBackStack()
+                }
             }
         }
     }
